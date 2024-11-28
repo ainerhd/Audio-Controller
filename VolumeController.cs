@@ -1,23 +1,72 @@
-﻿using System;
+﻿using NAudio.CoreAudioApi;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Audio_Controller
 {
     public class VolumeController
     {
-        public void SetVolume(int[] percentages)
-        {
-            if (percentages.Length > 0)
-            {
-                int volume = percentages[0]; // Nutze den ersten Kanal zur Lautstärkeregelung
-                Console.WriteLine($"Lautstärke auf {volume}% gesetzt (noch nicht implementiert).");
+        private readonly List<MMDevice> devices;
 
-                // Hier später Systemlautstärke steuern
-                // z. B. über CoreAudioAPI (Windows-spezifisch)
+        public VolumeController()
+        {
+            devices = new List<MMDevice>();
+
+            try
+            {
+                var deviceEnumerator = new MMDeviceEnumerator();
+                foreach (var device in deviceEnumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active))
+                {
+                    devices.Add(device);
+                }
+
+                if (devices.Count == 0)
+                {
+                    Console.WriteLine("Keine aktiven Audiogeräte gefunden.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Fehler beim Abrufen der Audiogeräte: " + ex.Message);
+            }
+        }
+
+        public void ListDevices()
+        {
+            Console.WriteLine("Verfügbare Geräte:");
+            for (int i = 0; i < devices.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}: {devices[i].FriendlyName}");
+            }
+        }
+
+        public MMDevice GetDeviceByIndex(int index)
+        {
+            if (index >= 1 && index <= devices.Count)
+            {
+                return devices[index - 1];
+            }
+
+            Console.WriteLine("Ungültige Auswahl. Gerät nicht gefunden.");
+            return null;
+        }
+
+        public void SetVolume(MMDevice device, int volumePercent)
+        {
+            if (device != null)
+            {
+                try
+                {
+                    float volume = volumePercent / 100f; // Prozent in Bereich 0.0 - 1.0 umwandeln
+                    device.AudioEndpointVolume.MasterVolumeLevelScalar = volume;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Fehler beim Einstellen der Lautstärke für {device.FriendlyName}: " + ex.Message);
+                }
             }
         }
     }
+
 }
