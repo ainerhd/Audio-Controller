@@ -87,7 +87,6 @@ class Program
         return null;
     }
 
-
     static Dictionary<int, MMDevice> AssignDevicesToChannels(VolumeController volumeController)
     {
         volumeController.ListDevices();

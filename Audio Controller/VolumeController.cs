@@ -72,6 +72,32 @@ namespace Audio_Controller
                 }
             }
         }
+
+        public MMDevice GetDeviceByName(string friendlyName)
+        {
+            foreach (var device in devices)
+            {
+                if (device.FriendlyName.Equals(friendlyName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return device;
+                }
+            }
+
+            Console.WriteLine($"Gerät mit dem Namen '{friendlyName}' wurde nicht gefunden.");
+            return null;
+        }
+
+        public List<string> GetDeviceNames()
+        {
+            var deviceNames = new List<string>();
+            foreach (var device in devices)
+            {
+                deviceNames.Add(device.FriendlyName);
+            }
+            return deviceNames;
+        }
+
+
     }
 
 }
