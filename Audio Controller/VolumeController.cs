@@ -52,6 +52,11 @@ namespace Audio_Controller
             return null;
         }
 
+        public bool HasDevices()
+        {
+            return devices != null && devices.Count > 0;
+        }
+
         public void SetVolume(MMDevice device, int volumePercent)
         {
             if (device != null)

@@ -1,8 +1,8 @@
 // Anzahl der analogen Eingänge (einstellbar)
-const int numInputs = 3;  // 1 bis n Eingänge, hier Beispiel: 3
+const int numInputs = 5;  // 1 bis n Eingänge, hier Beispiel: 5
 
 // Array mit den analogen Pins
-const int inputPins[] = {A0, A1, A2};  // Entsprechend der Anzahl anpassen
+const int inputPins[] = {A0, A1, A2, A3, A4};  // Entsprechend der Anzahl anpassen
 
 void setup() {
   Serial.begin(9600); // Serielle Kommunikation starten
@@ -12,6 +12,19 @@ void setup() {
 }
 
 void loop() {
+  // Prüfen, ob eine serielle Nachricht eingegangen ist
+  if (Serial.available() > 0) {
+    String command = Serial.readStringUntil('\n'); // Nachricht lesen
+    command.trim(); // Führende und nachfolgende Leerzeichen entfernen
+
+    // Auf spezifische Nachricht reagieren
+    if (command == "HELLO_ARDUINO") {
+      Serial.println("ARDUINO_READY"); // Antwort senden
+      return; // Zurückkehren, um analoge Ausgabe für diese Iteration zu überspringen
+    }
+  }
+
+  // Analoge Eingänge auslesen und senden
   for (int i = 0; i < numInputs; i++) {
     int sensorValue = analogRead(inputPins[i]); // Wert vom aktuellen Pin lesen
     Serial.print(sensorValue);                 // Wert senden
