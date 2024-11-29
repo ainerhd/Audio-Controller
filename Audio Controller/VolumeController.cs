@@ -75,17 +75,9 @@ namespace Audio_Controller
 
         public MMDevice GetDeviceByName(string friendlyName)
         {
-            foreach (var device in devices)
-            {
-                if (device.FriendlyName.Equals(friendlyName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return device;
-                }
-            }
-
-            Console.WriteLine($"Gerät mit dem Namen '{friendlyName}' wurde nicht gefunden.");
-            return null;
+            return devices.Find(d => string.Equals(d.FriendlyName?.Trim(), friendlyName?.Trim(), StringComparison.OrdinalIgnoreCase));
         }
+
 
         public List<string> GetDeviceNames()
         {

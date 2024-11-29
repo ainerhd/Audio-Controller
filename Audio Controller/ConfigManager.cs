@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using NAudio.CoreAudioApi;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -46,5 +47,6 @@ namespace Audio_Controller.Audio_Controller
                 Console.WriteLine($"Fehler beim Speichern der Konfiguration: {ex.Message}");
             }
         }
+
     }
 }

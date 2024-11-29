@@ -4,11 +4,38 @@ using NAudio.CoreAudioApi;
 using System;
 using System.Collections.Generic;
 using System.IO.Ports;
+using System.Linq;
 
 class Program
 {
     static void Main(string[] args)
     {
+        //Configmanager starten
+        AppConfig config = ConfigManager.LoadConfig();
+
+        //
+        var volumeController = new VolumeController();
+        var mmDeviceMap = ConvertToMMDeviceMap(config.ChannelDeviceMap, volumeController);
+
+
+        // Überprüfe, ob eine gültige Konfiguration vorhanden ist
+        if (CheckConfig(config))
+        {
+            Console.WriteLine("Eine gültige Konfiguration wurde gefunden.");
+            Console.Write("Möchten Sie die gespeicherte Konfiguration verwenden? (y/n): ");
+            string useConfig = Console.ReadLine();
+            if (useConfig?.ToLower() == "y")
+            {
+                // Nutze gespeicherte Konfiguration
+                Console.WriteLine("Gespeicherte Konfiguration wird verwendet.");
+                volumeController = new VolumeController();
+                mmDeviceMap = ConvertToMMDeviceMap(config.ChannelDeviceMap, volumeController);
+                StartSerialConnection(config.ComPort, mmDeviceMap);
+                return;
+            }
+        }
+
+        // Erstelle eine neue Konfiguration
         Console.WriteLine("Willkommen zum Multi-Geräte-Lautstärkeregler!");
 
         // COM-Port suchen
@@ -16,20 +43,26 @@ class Program
         if (string.IsNullOrEmpty(comPort)) return;
 
         // VolumeController initialisieren
-        var volumeController = new VolumeController();
+        volumeController = new VolumeController();
         if (!volumeController.HasDevices())
         {
             Console.WriteLine("Keine Audio-Geräte gefunden. Bitte prüfen Sie Ihre Audio-Einstellungen.");
-            Console.ReadLine();
             return;
         }
 
         // Kanäle und Geräte zuordnen
         var channelToDeviceMap = AssignDevicesToChannels(volumeController);
+        mmDeviceMap = ConvertToMMDeviceMap(channelToDeviceMap, volumeController);
 
         // Serielle Verbindung starten
-        StartSerialConnection(comPort, channelToDeviceMap);
+        StartSerialConnection(comPort, mmDeviceMap);
+
+        // Konfiguration speichern
+        config.ComPort = comPort;
+        config.ChannelDeviceMap = channelToDeviceMap;
+        ConfigManager.SaveConfig(config);
     }
+
 
     static string InitializeComPort()
     {
@@ -87,7 +120,7 @@ class Program
         return null;
     }
 
-    static Dictionary<int, MMDevice> AssignDevicesToChannels(VolumeController volumeController)
+    static Dictionary<int, string> AssignDevicesToChannels(VolumeController volumeController)
     {
         volumeController.ListDevices();
         Console.Write("Wie viele Kanäle sollen gelesen werden? ");
@@ -97,7 +130,7 @@ class Program
             channelCount = 1;
         }
 
-        var channelToDeviceMap = new Dictionary<int, MMDevice>();
+        var channelToDeviceMap = new Dictionary<int, string>();
         for (int i = 1; i <= channelCount; i++)
         {
             Console.Write($"Kanal {i}: Wähle ein Gerät (Nummer): ");
@@ -106,7 +139,7 @@ class Program
                 var device = volumeController.GetDeviceByIndex(deviceIndex);
                 if (device != null)
                 {
-                    channelToDeviceMap[i] = device;
+                    channelToDeviceMap[i] = device.FriendlyName; // Speichere den FriendlyName
                 }
                 else
                 {
@@ -120,6 +153,26 @@ class Program
         }
 
         return channelToDeviceMap;
+    }
+
+    static Dictionary<int, MMDevice> ConvertToMMDeviceMap(Dictionary<int, string> channelDeviceMap, VolumeController volumeController)
+    {
+        var deviceMap = new Dictionary<int, MMDevice>();
+
+        foreach (var entry in channelDeviceMap)
+        {
+            var device = volumeController.GetDeviceByName(entry.Value);
+            if (device != null)
+            {
+                deviceMap[entry.Key] = device;
+            }
+            else
+            {
+                Console.WriteLine($"[WARN] Gerät '{entry.Value}' konnte nicht gefunden werden.");
+            }
+        }
+
+        return deviceMap;
     }
 
     static void StartSerialConnection(string comPort, Dictionary<int, MMDevice> channelToDeviceMap)
@@ -171,4 +224,46 @@ class Program
             Console.WriteLine("Serielle Verbindung geschlossen.");
         }
     }
+
+    static bool CheckConfig(AppConfig config)
+    {
+        if (config == null)
+        {
+            Console.WriteLine("[ERROR] Die Konfiguration ist null.");
+            return false;
+        }
+
+        if (string.IsNullOrEmpty(config.ComPort))
+        {
+            Console.WriteLine("[WARN] Der gespeicherte COM-Port ist ungültig oder leer.");
+            return false;
+        }
+
+        if (config.ChannelDeviceMap == null || config.ChannelDeviceMap.Count == 0)
+        {
+            Console.WriteLine("[WARN] Keine Gerätezuordnungen in der Konfiguration gefunden.");
+            return false;
+        }
+
+        // Prüfen, ob der COM-Port verfügbar ist
+        if (!SerialPort.GetPortNames().Contains(config.ComPort))
+        {
+            Console.WriteLine($"[WARN] Der gespeicherte COM-Port '{config.ComPort}' ist nicht verfügbar.");
+            return false;
+        }
+
+        // Überprüfen, ob die Geräte existieren
+        var volumeController = new VolumeController();
+        foreach (var deviceName in config.ChannelDeviceMap.Values)
+        {
+            if (volumeController.GetDeviceByName(deviceName) == null)
+            {
+                Console.WriteLine($"[WARN] Das gespeicherte Gerät '{deviceName}' wurde nicht gefunden.");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }
