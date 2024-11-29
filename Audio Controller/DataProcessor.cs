@@ -6,8 +6,9 @@ public class DataProcessor
 {
     private readonly int channelCount;
     private readonly Queue<int>[] valueBuffers;
+    private int deadZone = 5;
 
-    public int BufferSize { get; set; } = 5; // Anzahl der Werte für den gleitenden Durchschnitt
+    public int BufferSize { get; set; } = 5; // Anzahl der Werte im gleitenden Durchschnitt
 
     public DataProcessor(int channelCount)
     {
@@ -51,7 +52,10 @@ public class DataProcessor
                 }
 
                 // Berechne den Durchschnitt des Puffers
-                smoothedValues[i] = (int)buffer.Average() * 100 / 1023;
+                int averageValue = (int)buffer.Average();
+
+                // Umrechnung mit Deadzone
+                smoothedValues[i] = ConvertToPercentageWithDeadzone(averageValue);
             }
 
             return smoothedValues;
@@ -61,5 +65,20 @@ public class DataProcessor
             Console.WriteLine("Fehler bei der Verarbeitung der Daten: " + ex.Message);
             return Array.Empty<int>();
         }
+    }
+
+    private int ConvertToPercentageWithDeadzone(int adcValue)
+    {
+        if (adcValue <= deadZone-1)
+        {
+            return 0; // Deadzone für 0%
+        }
+        if (adcValue >= 1020)
+        {
+            return 100; // Deadzone für 100%
+        }
+
+        // Wertebereich 5–1019 → 1%–99%
+        return (adcValue - deadZone) * 100 / (1023 - deadZone);
     }
 }
