@@ -87,19 +87,20 @@ class Program
         {
             Console.WriteLine("Versuche, ein Gerät mit der Nachrichtenerkennung zu finden...");
             string comPort = MixerIdentifier.FindDeviceByMessage("HELLO_MIXER", "MIXER_READY");
+
             if (!string.IsNullOrEmpty(comPort))
             {
-                Console.WriteLine($"Gerät gefunden auf {comPort}.");
+                Console.WriteLine($"✅ Gerät gefunden auf {comPort}.");
                 return comPort;
             }
             else
             {
-                Console.WriteLine("Kein passendes Gerät über Nachrichtenerkennung gefunden.");
+                Console.WriteLine("⚠️ Kein passendes Gerät über Nachrichtenerkennung gefunden.");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Fehler bei der Nachrichtenerkennung: {ex.Message}");
+            Console.WriteLine($"❌ Fehler bei der Nachrichtenerkennung: {ex.Message}");
         }
 
         // Fallback: Benutzer manuell einen Port auswählen lassen
