@@ -140,6 +140,7 @@
     <Compile Include="Audio Controller\AppConfig.cs" />
     <Compile Include="Audio Controller\ConfigManager.cs" />
     <Compile Include="Audio Controller\ConsoleUpdater.cs" />
+    <Compile Include="Audio Controller\ConsoleProgram.cs" />
     <Compile Include="Audio Controller\DataProcessor.cs" />
     <Compile Include="Audio Controller\MixerIdentifiers.cs" />
     <Compile Include="Audio Controller\MainForm.cs" />
