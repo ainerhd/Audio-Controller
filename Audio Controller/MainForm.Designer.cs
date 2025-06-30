@@ -11,8 +11,13 @@ namespace Audio_Controller
         private NumericUpDown numChannels;
         private TextBox txtComPort;
         private Button btnStart;
+        private Button btnStop;
         private Label lblChannels;
         private Label lblComPort;
+        private NumericUpDown numBufferSize;
+        private NumericUpDown numDeadZone;
+        private Label lblBufferSize;
+        private Label lblDeadZone;
 
         private void InitializeComponent()
         {
@@ -23,10 +28,17 @@ namespace Audio_Controller
             this.numChannels = new NumericUpDown();
             this.txtComPort = new TextBox();
             this.btnStart = new Button();
+            this.btnStop = new Button();
             this.lblChannels = new Label();
             this.lblComPort = new Label();
+            this.numBufferSize = new NumericUpDown();
+            this.numDeadZone = new NumericUpDown();
+            this.lblBufferSize = new Label();
+            this.lblDeadZone = new Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMapping)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numChannels)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numBufferSize)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numDeadZone)).BeginInit();
             this.SuspendLayout();
             // 
             // dgvMapping
@@ -83,6 +95,55 @@ namespace Audio_Controller
             this.btnStart.Text = "Start";
             this.btnStart.UseVisualStyleBackColor = true;
             this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
+
+            //
+            // btnStop
+            //
+            this.btnStop.Location = new System.Drawing.Point(308, 239);
+            this.btnStop.Name = "btnStop";
+            this.btnStop.Size = new System.Drawing.Size(64, 23);
+            this.btnStop.Text = "Stop";
+            this.btnStop.UseVisualStyleBackColor = true;
+            this.btnStop.Enabled = false;
+            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
+
+            //
+            // numBufferSize
+            //
+            this.numBufferSize.Location = new System.Drawing.Point(90, 239);
+            this.numBufferSize.Minimum = 1;
+            this.numBufferSize.Maximum = 20;
+            this.numBufferSize.Name = "numBufferSize";
+            this.numBufferSize.Size = new System.Drawing.Size(50, 20);
+            this.numBufferSize.Value = 5;
+
+            //
+            // numDeadZone
+            //
+            this.numDeadZone.Location = new System.Drawing.Point(242, 239);
+            this.numDeadZone.Minimum = 0;
+            this.numDeadZone.Maximum = 50;
+            this.numDeadZone.Name = "numDeadZone";
+            this.numDeadZone.Size = new System.Drawing.Size(50, 20);
+            this.numDeadZone.Value = 5;
+
+            //
+            // lblBufferSize
+            //
+            this.lblBufferSize.AutoSize = true;
+            this.lblBufferSize.Location = new System.Drawing.Point(12, 241);
+            this.lblBufferSize.Name = "lblBufferSize";
+            this.lblBufferSize.Size = new System.Drawing.Size(72, 13);
+            this.lblBufferSize.Text = "Puffergröße:";
+
+            //
+            // lblDeadZone
+            //
+            this.lblDeadZone.AutoSize = true;
+            this.lblDeadZone.Location = new System.Drawing.Point(160, 241);
+            this.lblDeadZone.Name = "lblDeadZone";
+            this.lblDeadZone.Size = new System.Drawing.Size(63, 13);
+            this.lblDeadZone.Text = "DeadZone:";
             // 
             // lblChannels
             // 
@@ -104,7 +165,12 @@ namespace Audio_Controller
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(384, 261);
+            this.ClientSize = new System.Drawing.Size(384, 271);
+            this.Controls.Add(this.btnStop);
+            this.Controls.Add(this.lblDeadZone);
+            this.Controls.Add(this.numDeadZone);
+            this.Controls.Add(this.lblBufferSize);
+            this.Controls.Add(this.numBufferSize);
             this.Controls.Add(this.lblComPort);
             this.Controls.Add(this.lblChannels);
             this.Controls.Add(this.btnStart);
@@ -115,6 +181,8 @@ namespace Audio_Controller
             this.Text = "Audio Controller";
             ((System.ComponentModel.ISupportInitialize)(this.dgvMapping)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numChannels)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numBufferSize)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numDeadZone)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
         }

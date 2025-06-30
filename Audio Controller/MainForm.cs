@@ -18,6 +18,7 @@ namespace Audio_Controller
             InitializeComponent();
             volumeController = new VolumeController();
             LoadDevices();
+            LoadConfig();
         }
 
         private void LoadDevices()
@@ -29,6 +30,34 @@ namespace Audio_Controller
                 deviceColumn.Items.Add(name);
             }
             numChannels.Value = 1;
+        }
+
+        private void LoadConfig()
+        {
+            var config = ConfigManager.LoadConfig();
+            if (config == null) return;
+
+            if (!string.IsNullOrEmpty(config.ComPort))
+            {
+                txtComPort.Text = config.ComPort;
+            }
+
+            if (config.BufferSize > 0) numBufferSize.Value = config.BufferSize;
+            if (config.DeadZone >= 0) numDeadZone.Value = config.DeadZone;
+
+            if (config.ChannelDeviceMap != null && config.ChannelDeviceMap.Count > 0)
+            {
+                int count = Math.Min(config.ChannelDeviceMap.Count, (int)numChannels.Maximum);
+                numChannels.Value = count;
+                foreach (var kvp in config.ChannelDeviceMap)
+                {
+                    int index = kvp.Key - 1;
+                    if (index < dgvMapping.Rows.Count)
+                    {
+                        dgvMapping.Rows[index].Cells[1].Value = kvp.Value;
+                    }
+                }
+            }
         }
 
         private void numChannels_ValueChanged(object sender, EventArgs e)
@@ -57,12 +86,30 @@ namespace Audio_Controller
                     deviceMap[i + 1] = device;
                 }
             }
-            dataProcessor = new DataProcessor(channelCount);
-            serialConnection = new SerialConnection(txtComPort.Text);
+            string port = txtComPort.Text;
+            if (string.IsNullOrWhiteSpace(port))
+            {
+                port = MixerIdentifier.FindDeviceByMessage("HELLO_MIXER", "MIXER_READY");
+                if (string.IsNullOrEmpty(port))
+                {
+                    MessageBox.Show("Kein Gerät gefunden.");
+                    return;
+                }
+                txtComPort.Text = port;
+            }
+
+            int bufferSize = (int)numBufferSize.Value;
+            int deadZone = (int)numDeadZone.Value;
+
+            dataProcessor = new DataProcessor(channelCount, bufferSize, deadZone);
+            serialConnection = new SerialConnection(port);
             serialConnection.DataReceived += SerialDataReceived;
             try
             {
                 serialConnection.Open();
+                btnStart.Enabled = false;
+                btnStop.Enabled = true;
+                SaveCurrentConfig();
             }
             catch (Exception ex)
             {
@@ -90,6 +137,39 @@ namespace Audio_Controller
                     }
                 }
             }));
+        }
+
+        private void SaveCurrentConfig()
+        {
+            var config = new AppConfig
+            {
+                ComPort = txtComPort.Text,
+                BufferSize = (int)numBufferSize.Value,
+                DeadZone = (int)numDeadZone.Value,
+                ChannelDeviceMap = new Dictionary<int, string>()
+            };
+
+            int count = (int)numChannels.Value;
+            for (int i = 0; i < count; i++)
+            {
+                var name = dgvMapping.Rows[i].Cells[1].Value as string;
+                config.ChannelDeviceMap[i + 1] = name;
+            }
+
+            ConfigManager.SaveConfig(config);
+        }
+
+        private void btnStop_Click(object sender, EventArgs e)
+        {
+            if (serialConnection != null)
+            {
+                serialConnection.Close();
+                serialConnection = null;
+            }
+
+            btnStart.Enabled = true;
+            btnStop.Enabled = false;
+            SaveCurrentConfig();
         }
     }
 }
