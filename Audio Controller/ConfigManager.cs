@@ -30,7 +30,12 @@ namespace Audio_Controller.Audio_Controller
             catch (Exception ex)
             {
                 Console.WriteLine($"Fehler beim Laden der Konfiguration: {ex.Message}");
-                return null;
+                // Stelle sicher, dass das Programm mit einer leeren Konfiguration fortfahren kann
+                return new AppConfig
+                {
+                    ComPort = null,
+                    ChannelDeviceMap = new Dictionary<int, string>()
+                };
             }
         }
 
