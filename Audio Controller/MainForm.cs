@@ -21,11 +21,13 @@ namespace Audio_Controller
             LoadDevices();
             LoadSerialPorts();
             cmbComPort.DropDown += (s, e) => LoadSerialPorts();
+            dgvMapping.EditingControlShowing += dgvMapping_EditingControlShowing;
             LoadConfig();
         }
 
         private void LoadDevices()
         {
+            volumeController.RefreshDevices();
             var deviceNames = volumeController.GetDeviceNames();
             deviceColumn.Items.Clear();
             foreach (var name in deviceNames)
@@ -41,6 +43,19 @@ namespace Audio_Controller
             foreach (var port in SerialPort.GetPortNames())
             {
                 cmbComPort.Items.Add(port);
+            }
+        }
+
+        private void dgvMapping_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
+        {
+            if (dgvMapping.CurrentCell.ColumnIndex == 1 && e.Control is ComboBox combo)
+            {
+                volumeController.RefreshDevices();
+                combo.Items.Clear();
+                foreach (var name in volumeController.GetDeviceNames())
+                {
+                    combo.Items.Add(name);
+                }
             }
         }
 
