@@ -25,10 +25,25 @@ namespace Audio_Controller
 
         public void Open()
         {
-            if (!serialPort.IsOpen)
+            if (serialPort.IsOpen)
+            {
+                return;
+            }
+
+            try
             {
                 serialPort.Open();
                 Console.WriteLine($"Verbindung zu {serialPort.PortName} hergestellt.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine($"[ERROR] Kein Zugriff auf {serialPort.PortName}: {ex.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Öffnen von {serialPort.PortName} fehlgeschlagen: {ex.Message}");
+                throw;
             }
         }
 

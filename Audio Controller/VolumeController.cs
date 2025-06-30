@@ -59,17 +59,25 @@ namespace Audio_Controller
 
         public void SetVolume(MMDevice device, int volumePercent)
         {
-            if (device != null)
+            if (device == null)
             {
-                try
-                {
-                    float volume = volumePercent / 100f; // Prozent in Bereich 0.0 - 1.0 umwandeln
-                    device.AudioEndpointVolume.MasterVolumeLevelScalar = volume;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Fehler beim Einstellen der Lautstärke für {device.FriendlyName}: " + ex.Message);
-                }
+                Console.WriteLine("[WARN] Kein Gerät angegeben.");
+                return;
+            }
+
+            volumePercent = Math.Clamp(volumePercent, 0, 100);
+
+            try
+            {
+                float linear = volumePercent / 100f; // von 0-100% nach 0.0-1.0
+                // logarithmische Skalierung für ein natürlicheres Lautstärkegefühl
+                // 0% -> 0.0, 100% -> 1.0
+                float volume = (float)Math.Log10(1 + 9 * linear);
+                device.AudioEndpointVolume.MasterVolumeLevelScalar = volume;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Fehler beim Einstellen der Lautstärke für {device.FriendlyName}: {ex.Message}");
             }
         }
 
