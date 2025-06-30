@@ -63,7 +63,10 @@ namespace Audio_Controller
             {
                 try
                 {
-                    float volume = volumePercent / 100f; // Prozent in Bereich 0.0 - 1.0 umwandeln
+                    float linear = volumePercent / 100f; // von 0-100% nach 0.0-1.0
+                    // logarithmische Skalierung fr ein natrlicheres Lautstrkegefhl
+                    // 0% -> 0.0, 100% -> 1.0
+                    float volume = (float)Math.Log10(1 + 9 * linear);
                     device.AudioEndpointVolume.MasterVolumeLevelScalar = volume;
                 }
                 catch (Exception ex)

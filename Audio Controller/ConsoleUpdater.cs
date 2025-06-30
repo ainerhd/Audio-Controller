@@ -19,7 +19,7 @@ namespace Audio_Controller
             Console.Clear();
             for (int i = 0; i < channelCount; i++)
             {
-                Console.WriteLine($"Kanal {i + 1}: 0%");
+                DrawLine(i + 1, 0);
             }
         }
 
@@ -29,9 +29,23 @@ namespace Audio_Controller
             {
                 lastValues[channel - 1] = percentage;
 
-                Console.SetCursorPosition(0, channel - 1);
-                Console.Write($"Kanal {channel}: {percentage}%  "); // Füge Leerzeichen hinzu, um alte Werte zu überschreiben
+                DrawLine(channel, percentage);
             }
+        }
+
+        private void DrawLine(int channel, int percentage)
+        {
+            const int barLength = 20;
+            int filledLength = percentage * barLength / 100;
+            string bar = new string('█', filledLength) + new string('░', barLength - filledLength);
+
+            Console.SetCursorPosition(0, channel - 1);
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write($"Kanal {channel}: ");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write($"[{bar}] ");
+            Console.ResetColor();
+            Console.Write($"{percentage,3}%  ");
         }
     }
 
