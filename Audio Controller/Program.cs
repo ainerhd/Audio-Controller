@@ -217,7 +217,7 @@ class Program
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Fehler: " + ex.Message);
+            Console.WriteLine($"[ERROR] Verbindung konnte nicht geöffnet werden: {ex.Message}");
         }
         finally
         {

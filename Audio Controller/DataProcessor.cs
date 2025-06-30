@@ -39,7 +39,11 @@ public class DataProcessor
             int[] smoothedValues = new int[channelCount];
             for (int i = 0; i < channelCount; i++)
             {
-                int currentValue = int.Parse(rawValues[i]);
+                if (!int.TryParse(rawValues[i], out int currentValue))
+                {
+                    Console.WriteLine($"[WARN] Ungültiger Wert '{rawValues[i]}' im Kanal {i + 1}.");
+                    currentValue = 0;
+                }
 
                 // Füge neuen Wert zum Puffer hinzu
                 var buffer = valueBuffers[i];

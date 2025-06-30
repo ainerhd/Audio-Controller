@@ -25,6 +25,14 @@ namespace Audio_Controller
 
         public void UpdateChannel(int channel, int percentage)
         {
+            if (channel < 1 || channel > channelCount)
+            {
+                Console.WriteLine($"[WARN] Ungültiger Kanal: {channel}");
+                return;
+            }
+
+            percentage = Math.Clamp(percentage, 0, 100);
+
             if (lastValues[channel - 1] != percentage) // Nur aktualisieren, wenn sich der Wert geändert hat
             {
                 lastValues[channel - 1] = percentage;
@@ -39,13 +47,20 @@ namespace Audio_Controller
             int filledLength = percentage * barLength / 100;
             string bar = new string('█', filledLength) + new string('░', barLength - filledLength);
 
-            Console.SetCursorPosition(0, channel - 1);
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write($"Kanal {channel}: ");
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write($"[{bar}] ");
-            Console.ResetColor();
-            Console.Write($"{percentage,3}%  ");
+            try
+            {
+                Console.SetCursorPosition(0, channel - 1);
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.Write($"Kanal {channel}: ");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.Write($"[{bar}] ");
+                Console.ResetColor();
+                Console.Write($"{percentage,3}%  ");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Fehler beim Aktualisieren der Konsole: {ex.Message}");
+            }
         }
     }
 
