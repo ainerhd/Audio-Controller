@@ -72,7 +72,7 @@ namespace Audio_Controller
                 return;
             }
 
-            volumePercent = Math.Clamp(volumePercent, 0, 100);
+            volumePercent = MathHelpers.Clamp(volumePercent, 0, 100);
 
             try
             {
