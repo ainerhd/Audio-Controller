@@ -1,24 +1,29 @@
-// Anzahl der analogen Eing‰nge (einstellbar)
-const int numInputs = 5;  // 1 bis n Eing‰nge
+// Anzahl der analogen Eing√§nge (einstellbar)
+const int numInputs = 5;  // 1 bis n Eing√§nge
 const int inputPins[] = {A0, A1, A2, A3, A4};  // Entsprechend der Anzahl anpassen
+
+unsigned long sendInterval = 100; // Zeit in Millisekunden zwischen den Sendungen
+unsigned long lastSendTime = 0;
 
 void setup() {
   Serial.begin(9600); // Serielle Verbindung starten
   for (int i = 0; i < numInputs; i++) {
-    pinMode(inputPins[i], INPUT); // Pins als Eing‰nge definieren
+    pinMode(inputPins[i], INPUT); // Pins als Eing√§nge definieren
   }
-  delay(1000); // Sicherstellen, dass die Verbindung vollst‰ndig hergestellt ist
+  delay(1000); // Sicherstellen, dass die Verbindung vollst√§ndig hergestellt ist
 }
 
 void loop() {
-  // Pr¸fen, ob eine Nachricht empfangen wurde
+  // Pr√ºfen, ob eine Nachricht empfangen wurde
   if (Serial.available() > 0) {
     handleSerialMessage();
-  } else {
-    // Kontinuierlich analoge Werte senden
-    sendAnalogValues();
   }
-  delay(100); // Pause zwischen den Sendungen
+
+  unsigned long now = millis();
+  if (now - lastSendTime >= sendInterval) {
+    sendAnalogValues();
+    lastSendTime = now;
+  }
 }
 
 // Funktion zur Verarbeitung von seriellen Nachrichten
@@ -28,6 +33,13 @@ void handleSerialMessage() {
 
   if (command == "HELLO_MIXER") {
     Serial.println("MIXER_READY"); // Antwort senden
+  } else if (command.startsWith("RATE ")) {
+    unsigned long rate = command.substring(5).toInt();
+    if (rate > 0) {
+      sendInterval = rate;
+      Serial.print("RATE_SET ");
+      Serial.println(sendInterval);
+    }
   }
 }
 

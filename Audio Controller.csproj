@@ -149,6 +149,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Audio Controller\SerialConnection.cs" />
     <Compile Include="Audio Controller\VolumeController.cs" />
+    <Compile Include="Audio Controller\MathHelpers.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Audio Controller\App.config" />

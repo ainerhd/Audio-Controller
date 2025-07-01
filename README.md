@@ -24,6 +24,7 @@ mono "Audio Controller/bin/Debug/Audio Controller.exe"
 - **Settings persistence** for COM port, channel mapping and smoothing parameters.
 - **Console mode**: run the program with command line arguments instead of the GUI.
 - **Dynamic device list**: available audio devices refresh when selecting a device.
+- **COM port dropdown**: choose from currently available ports in a combo box.
 
 Example for console mode:
 
