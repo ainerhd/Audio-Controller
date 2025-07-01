@@ -9,7 +9,7 @@ namespace Audio_Controller
         private DataGridViewComboBoxColumn deviceColumn;
         private DataGridViewTextBoxColumn volumeColumn;
         private NumericUpDown numChannels;
-        private ComboBox cmbComPort;
+        private TextBox txtComPort;
         private Button btnStart;
         private Button btnStop;
         private Label lblChannels;
@@ -26,7 +26,7 @@ namespace Audio_Controller
             this.deviceColumn = new DataGridViewComboBoxColumn();
             this.volumeColumn = new DataGridViewTextBoxColumn();
             this.numChannels = new NumericUpDown();
-            this.cmbComPort = new ComboBox();
+            this.txtComPort = new TextBox();
             this.btnStart = new Button();
             this.btnStop = new Button();
             this.lblChannels = new Label();
@@ -81,12 +81,11 @@ namespace Audio_Controller
             this.numChannels.Value = 1;
             this.numChannels.ValueChanged += new System.EventHandler(this.numChannels_ValueChanged);
             // 
-            // cmbComPort
-            //
-            this.cmbComPort.FormattingEnabled = true;
-            this.cmbComPort.Location = new System.Drawing.Point(242, 12);
-            this.cmbComPort.Name = "cmbComPort";
-            this.cmbComPort.Size = new System.Drawing.Size(60, 21);
+            // txtComPort
+            // 
+            this.txtComPort.Location = new System.Drawing.Point(242, 12);
+            this.txtComPort.Name = "txtComPort";
+            this.txtComPort.Size = new System.Drawing.Size(60, 20);
             // 
             // btnStart
             // 
@@ -175,12 +174,11 @@ namespace Audio_Controller
             this.Controls.Add(this.lblComPort);
             this.Controls.Add(this.lblChannels);
             this.Controls.Add(this.btnStart);
-            this.Controls.Add(this.cmbComPort);
+            this.Controls.Add(this.txtComPort);
             this.Controls.Add(this.numChannels);
             this.Controls.Add(this.dgvMapping);
             this.Name = "MainForm";
             this.Text = "Audio Controller";
-            this.FormClosing += new FormClosingEventHandler(this.MainForm_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.dgvMapping)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numChannels)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numBufferSize)).EndInit();

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using System.IO.Ports;
 using NAudio.CoreAudioApi;
 using Audio_Controller.Audio_Controller;
 
@@ -19,15 +18,11 @@ namespace Audio_Controller
             InitializeComponent();
             volumeController = new VolumeController();
             LoadDevices();
-            LoadSerialPorts();
-            cmbComPort.DropDown += (s, e) => LoadSerialPorts();
-            dgvMapping.EditingControlShowing += dgvMapping_EditingControlShowing;
             LoadConfig();
         }
 
         private void LoadDevices()
         {
-            volumeController.RefreshDevices();
             var deviceNames = volumeController.GetDeviceNames();
             deviceColumn.Items.Clear();
             foreach (var name in deviceNames)
@@ -37,28 +32,6 @@ namespace Audio_Controller
             numChannels.Value = 1;
         }
 
-        private void LoadSerialPorts()
-        {
-            cmbComPort.Items.Clear();
-            foreach (var port in SerialPort.GetPortNames())
-            {
-                cmbComPort.Items.Add(port);
-            }
-        }
-
-        private void dgvMapping_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
-        {
-            if (dgvMapping.CurrentCell.ColumnIndex == 1 && e.Control is ComboBox combo)
-            {
-                volumeController.RefreshDevices();
-                combo.Items.Clear();
-                foreach (var name in volumeController.GetDeviceNames())
-                {
-                    combo.Items.Add(name);
-                }
-            }
-        }
-
         private void LoadConfig()
         {
             var config = ConfigManager.LoadConfig();
@@ -66,7 +39,7 @@ namespace Audio_Controller
 
             if (!string.IsNullOrEmpty(config.ComPort))
             {
-                cmbComPort.Text = config.ComPort;
+                txtComPort.Text = config.ComPort;
             }
 
             if (config.BufferSize > 0) numBufferSize.Value = config.BufferSize;
@@ -113,7 +86,7 @@ namespace Audio_Controller
                     deviceMap[i + 1] = device;
                 }
             }
-            string port = cmbComPort.Text;
+            string port = txtComPort.Text;
             if (string.IsNullOrWhiteSpace(port))
             {
                 port = MixerIdentifier.FindDeviceByMessage("HELLO_MIXER", "MIXER_READY");
@@ -122,7 +95,7 @@ namespace Audio_Controller
                     MessageBox.Show("Kein Gerät gefunden.");
                     return;
                 }
-                cmbComPort.Text = port;
+                txtComPort.Text = port;
             }
 
             int bufferSize = (int)numBufferSize.Value;
@@ -170,7 +143,7 @@ namespace Audio_Controller
         {
             var config = new AppConfig
             {
-                ComPort = cmbComPort.Text,
+                ComPort = txtComPort.Text,
                 BufferSize = (int)numBufferSize.Value,
                 DeadZone = (int)numDeadZone.Value,
                 ChannelDeviceMap = new Dictionary<int, string>()
@@ -196,16 +169,6 @@ namespace Audio_Controller
 
             btnStart.Enabled = true;
             btnStop.Enabled = false;
-            SaveCurrentConfig();
-        }
-
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (serialConnection != null)
-            {
-                serialConnection.Close();
-                serialConnection = null;
-            }
             SaveCurrentConfig();
         }
     }
