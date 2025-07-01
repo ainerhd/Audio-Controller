@@ -13,13 +13,6 @@ namespace Audio_Controller
         {
             devices = new List<MMDevice>();
 
-            RefreshDevices();
-        }
-
-        public void RefreshDevices()
-        {
-            devices.Clear();
-
             try
             {
                 var deviceEnumerator = new MMDeviceEnumerator();
