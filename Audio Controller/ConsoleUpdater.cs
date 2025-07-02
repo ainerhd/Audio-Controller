@@ -31,7 +31,7 @@ namespace Audio_Controller
                 return;
             }
 
-            percentage = Math.Clamp(percentage, 0, 100);
+            percentage = Math.Min(Math.Max(percentage, 0), 100);
 
             if (lastValues[channel - 1] != percentage) // Nur aktualisieren, wenn sich der Wert geändert hat
             {
