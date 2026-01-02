@@ -32,7 +32,7 @@ namespace Audio_Controller
                 return;
             }
 
-            var volumeController = new VolumeController();
+            using var volumeController = new VolumeController();
             var deviceMap = new Dictionary<int, MMDevice>();
             for (int i = 0; i < channelCount && i + 2 < args.Length; i++)
             {
@@ -45,7 +45,7 @@ namespace Audio_Controller
 
             var processor = new DataProcessor(channelCount);
             var updater = new ConsoleUpdater(channelCount);
-            var connection = new SerialConnection(port);
+            using var connection = new SerialConnection(port);
             connection.DataReceived += raw =>
             {
                 var values = processor.Process(raw);
@@ -59,16 +59,9 @@ namespace Audio_Controller
                 }
             };
 
-            try
-            {
-                connection.Open();
-                Console.WriteLine("Press ENTER to quit");
-                Console.ReadLine();
-            }
-            finally
-            {
-                connection.Close();
-            }
+            connection.Open();
+            Console.WriteLine("Press ENTER to quit");
+            Console.ReadLine();
         }
     }
 }
