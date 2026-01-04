@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace Audio_Controller
 {
-    public class SerialConnection
+    public class SerialConnection : IDisposable
     {
         private SerialPort serialPort;
+        private bool disposed;
 
         public event Action<string> DataReceived;
 
@@ -23,9 +24,11 @@ namespace Audio_Controller
             serialPort.DataReceived += OnDataReceived;
         }
 
+        public bool IsOpen => serialPort?.IsOpen == true;
+
         public void Open()
         {
-            if (serialPort.IsOpen)
+            if (IsOpen)
             {
                 return;
             }
@@ -49,7 +52,7 @@ namespace Audio_Controller
 
         public void Close()
         {
-            if (serialPort.IsOpen)
+            if (serialPort != null && serialPort.IsOpen)
             {
                 serialPort.DataReceived -= OnDataReceived;
                 serialPort.Close();
@@ -59,6 +62,11 @@ namespace Audio_Controller
 
         private void OnDataReceived(object sender, SerialDataReceivedEventArgs e)
         {
+            if (!IsOpen || disposed)
+            {
+                return;
+            }
+
             try
             {
                 string data = serialPort.ReadLine().Trim();
@@ -67,6 +75,25 @@ namespace Audio_Controller
             catch (Exception ex)
             {
                 Console.WriteLine("Fehler beim Lesen der seriellen Daten: " + ex.Message);
+            }
+        }
+
+        public void Dispose()
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            disposed = true;
+            try
+            {
+                Close();
+                serialPort?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Fehler beim Freigeben der seriellen Verbindung: {ex.Message}");
             }
         }
     }

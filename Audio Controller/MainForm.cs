@@ -19,6 +19,7 @@ namespace Audio_Controller
             volumeController = new VolumeController();
             LoadDevices();
             LoadConfig();
+            FormClosing += MainForm_FormClosing;
         }
 
         private void LoadDevices()
@@ -49,12 +50,16 @@ namespace Audio_Controller
             {
                 int count = Math.Min(config.ChannelDeviceMap.Count, (int)numChannels.Maximum);
                 numChannels.Value = count;
+                var deviceNames = new HashSet<string>(volumeController.GetDeviceNames(), StringComparer.OrdinalIgnoreCase);
                 foreach (var kvp in config.ChannelDeviceMap)
                 {
                     int index = kvp.Key - 1;
                     if (index < dgvMapping.Rows.Count)
                     {
-                        dgvMapping.Rows[index].Cells[1].Value = kvp.Value;
+                        var preferred = kvp.Value;
+                        dgvMapping.Rows[index].Cells[1].Value = deviceNames.Contains(preferred)
+                            ? preferred
+                            : (deviceColumn.Items.Count > 0 ? deviceColumn.Items[0] : null);
                     }
                 }
             }
@@ -122,6 +127,11 @@ namespace Audio_Controller
             int[] values = dataProcessor.Process(raw);
             if (values.Length == 0) return;
 
+            if (IsDisposed || Disposing || !IsHandleCreated)
+            {
+                return;
+            }
+
             BeginInvoke((MethodInvoker)(() =>
             {
                 for (int i = 0; i < values.Length; i++)
@@ -161,15 +171,45 @@ namespace Audio_Controller
 
         private void btnStop_Click(object sender, EventArgs e)
         {
+            StopConnection();
+            SaveCurrentConfig();
+        }
+
+        private void btnSaveMapping_Click(object sender, EventArgs e)
+        {
+            SaveCurrentConfig();
+            MessageBox.Show("Mapping gespeichert.");
+        }
+
+        private void btnResetSettings_Click(object sender, EventArgs e)
+        {
+            StopConnection();
+            ConfigManager.DeleteConfig();
+            txtComPort.Text = string.Empty;
+            numBufferSize.Value = 5;
+            numDeadZone.Value = 5;
+            numChannels.Value = 1;
+            MessageBox.Show("Einstellungen wurden zurückgesetzt.");
+        }
+
+        private void StopConnection()
+        {
             if (serialConnection != null)
             {
-                serialConnection.Close();
+                serialConnection.DataReceived -= SerialDataReceived;
+                serialConnection.Dispose();
                 serialConnection = null;
             }
 
             btnStart.Enabled = true;
             btnStop.Enabled = false;
-            SaveCurrentConfig();
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            StopConnection();
+            volumeController?.Dispose();
+            volumeController = null;
         }
     }
 }

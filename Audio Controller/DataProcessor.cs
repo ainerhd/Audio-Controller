@@ -7,14 +7,26 @@ public class DataProcessor
     private readonly int channelCount;
     private readonly Queue<int>[] valueBuffers;
 
-    public int BufferSize { get; set; } = 5; // Anzahl der Werte im gleitenden Durchschnitt
-    public int DeadZone { get; set; } = 5;   // Größe der Dead‑Zone
+    private int bufferSize = 5;
+    private int deadZone = 5;
+
+    public int BufferSize
+    {
+        get => bufferSize;
+        set => bufferSize = Math.Max(1, value);
+    }
+
+    public int DeadZone
+    {
+        get => deadZone;
+        set => deadZone = Math.Min(Math.Max(value, 0), 1023);
+    }
 
     public DataProcessor(int channelCount, int bufferSize = 5, int deadZone = 5)
     {
         this.channelCount = channelCount;
-        this.BufferSize = bufferSize;
-        this.DeadZone = deadZone;
+        BufferSize = bufferSize;
+        DeadZone = deadZone;
         valueBuffers = new Queue<int>[channelCount];
 
         // Initialisiere den Puffer für jeden Kanal
