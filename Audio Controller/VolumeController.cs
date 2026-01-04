@@ -5,9 +5,10 @@ using System.Collections.Generic;
 
 namespace Audio_Controller
 {
-    public class VolumeController
+    public class VolumeController : IDisposable
     {
         private readonly List<MMDevice> devices;
+        private bool disposed;
 
         public VolumeController()
         {
@@ -97,6 +98,20 @@ namespace Audio_Controller
             return deviceNames;
         }
 
+        public void Dispose()
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            disposed = true;
+            foreach (var device in devices)
+            {
+                device?.Dispose();
+            }
+            devices.Clear();
+        }
 
     }
 

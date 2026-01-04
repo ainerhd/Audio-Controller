@@ -18,6 +18,8 @@ namespace Audio_Controller
         private NumericUpDown numDeadZone;
         private Label lblBufferSize;
         private Label lblDeadZone;
+        private Button btnSaveMapping;
+        private Button btnResetSettings;
 
         private void InitializeComponent()
         {
@@ -35,6 +37,8 @@ namespace Audio_Controller
             this.numDeadZone = new NumericUpDown();
             this.lblBufferSize = new Label();
             this.lblDeadZone = new Label();
+            this.btnSaveMapping = new Button();
+            this.btnResetSettings = new Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMapping)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numChannels)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numBufferSize)).BeginInit();
@@ -145,6 +149,24 @@ namespace Audio_Controller
             this.lblDeadZone.Size = new System.Drawing.Size(63, 13);
             this.lblDeadZone.Text = "DeadZone:";
             // 
+            // btnSaveMapping
+            // 
+            this.btnSaveMapping.Location = new System.Drawing.Point(200, 265);
+            this.btnSaveMapping.Name = "btnSaveMapping";
+            this.btnSaveMapping.Size = new System.Drawing.Size(104, 23);
+            this.btnSaveMapping.Text = "Mapping speichern";
+            this.btnSaveMapping.UseVisualStyleBackColor = true;
+            this.btnSaveMapping.Click += new System.EventHandler(this.btnSaveMapping_Click);
+            // 
+            // btnResetSettings
+            // 
+            this.btnResetSettings.Location = new System.Drawing.Point(12, 265);
+            this.btnResetSettings.Name = "btnResetSettings";
+            this.btnResetSettings.Size = new System.Drawing.Size(150, 23);
+            this.btnResetSettings.Text = "Einstellungen zurücksetzen";
+            this.btnResetSettings.UseVisualStyleBackColor = true;
+            this.btnResetSettings.Click += new System.EventHandler(this.btnResetSettings_Click);
+            // 
             // lblChannels
             // 
             this.lblChannels.AutoSize = true;
@@ -165,8 +187,10 @@ namespace Audio_Controller
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(384, 271);
+            this.ClientSize = new System.Drawing.Size(384, 300);
             this.Controls.Add(this.btnStop);
+            this.Controls.Add(this.btnSaveMapping);
+            this.Controls.Add(this.btnResetSettings);
             this.Controls.Add(this.lblDeadZone);
             this.Controls.Add(this.numDeadZone);
             this.Controls.Add(this.lblBufferSize);

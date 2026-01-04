@@ -32,42 +32,37 @@ namespace Audio_Controller
                 return;
             }
 
-            var volumeController = new VolumeController();
-            var deviceMap = new Dictionary<int, MMDevice>();
-            for (int i = 0; i < channelCount && i + 2 < args.Length; i++)
+            using (var volumeController = new VolumeController())
+            using (var connection = new SerialConnection(port))
             {
-                var device = volumeController.GetDeviceByName(args[i + 2]);
-                if (device != null)
+                var deviceMap = new Dictionary<int, MMDevice>();
+                for (int i = 0; i < channelCount && i + 2 < args.Length; i++)
                 {
-                    deviceMap[i + 1] = device;
-                }
-            }
-
-            var processor = new DataProcessor(channelCount);
-            var updater = new ConsoleUpdater(channelCount);
-            var connection = new SerialConnection(port);
-            connection.DataReceived += raw =>
-            {
-                var values = processor.Process(raw);
-                for (int i = 0; i < values.Length; i++)
-                {
-                    updater.UpdateChannel(i + 1, values[i]);
-                    if (deviceMap.TryGetValue(i + 1, out var dev))
+                    var device = volumeController.GetDeviceByName(args[i + 2]);
+                    if (device != null)
                     {
-                        volumeController.SetVolume(dev, values[i]);
+                        deviceMap[i + 1] = device;
                     }
                 }
-            };
 
-            try
-            {
+                var processor = new DataProcessor(channelCount);
+                var updater = new ConsoleUpdater(channelCount);
+                connection.DataReceived += raw =>
+                {
+                    var values = processor.Process(raw);
+                    for (int i = 0; i < values.Length; i++)
+                    {
+                        updater.UpdateChannel(i + 1, values[i]);
+                        if (deviceMap.TryGetValue(i + 1, out var dev))
+                        {
+                            volumeController.SetVolume(dev, values[i]);
+                        }
+                    }
+                };
+
                 connection.Open();
                 Console.WriteLine("Press ENTER to quit");
                 Console.ReadLine();
-            }
-            finally
-            {
-                connection.Close();
             }
         }
     }
