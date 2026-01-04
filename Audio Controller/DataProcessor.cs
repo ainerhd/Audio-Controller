@@ -6,13 +6,27 @@ public class DataProcessor
 {
     private readonly int channelCount;
     private readonly Queue<int>[] valueBuffers;
+
+    private int bufferSize = 5;
     private int deadZone = 5;
 
-    public int BufferSize { get; set; } = 5; // Anzahl der Werte im gleitenden Durchschnitt
+    public int BufferSize
+    {
+        get => bufferSize;
+        set => bufferSize = Math.Max(1, value);
+    }
 
-    public DataProcessor(int channelCount)
+    public int DeadZone
+    {
+        get => deadZone;
+        set => deadZone = Math.Min(Math.Max(value, 0), 1023);
+    }
+
+    public DataProcessor(int channelCount, int bufferSize = 5, int deadZone = 5)
     {
         this.channelCount = channelCount;
+        BufferSize = bufferSize;
+        DeadZone = deadZone;
         valueBuffers = new Queue<int>[channelCount];
 
         // Initialisiere den Puffer für jeden Kanal
@@ -39,7 +53,11 @@ public class DataProcessor
             int[] smoothedValues = new int[channelCount];
             for (int i = 0; i < channelCount; i++)
             {
-                int currentValue = int.Parse(rawValues[i]);
+                if (!int.TryParse(rawValues[i], out int currentValue))
+                {
+                    Console.WriteLine($"[WARN] Ungültiger Wert '{rawValues[i]}' im Kanal {i + 1}.");
+                    currentValue = 0;
+                }
 
                 // Füge neuen Wert zum Puffer hinzu
                 var buffer = valueBuffers[i];
@@ -69,7 +87,7 @@ public class DataProcessor
 
     private int ConvertToPercentageWithDeadzone(int adcValue)
     {
-        if (adcValue <= deadZone-1)
+        if (adcValue <= DeadZone - 1)
         {
             return 0; // Deadzone für 0%
         }
@@ -79,6 +97,6 @@ public class DataProcessor
         }
 
         // Wertebereich 5–1019 → 1%–99%
-        return (adcValue - deadZone) * 100 / (1023 - deadZone);
+        return (adcValue - DeadZone) * 100 / (1023 - DeadZone);
     }
 }

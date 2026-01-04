@@ -8,7 +8,10 @@ namespace Audio_Controller.Audio_Controller
 {
     public static class ConfigManager
     {
-        private static readonly string ConfigFilePath = "config.json"; // Speicherort der Konfigurationsdatei
+        private static readonly string ConfigDirectory = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "Audio Controller");
+        private static readonly string ConfigFilePath = Path.Combine(ConfigDirectory, "config.json"); // Speicherort der Konfigurationsdatei
 
         public static AppConfig LoadConfig()
         {
@@ -24,6 +27,7 @@ namespace Audio_Controller.Audio_Controller
 
             try
             {
+                Directory.CreateDirectory(ConfigDirectory);
                 string json = File.ReadAllText(ConfigFilePath);
                 return JsonConvert.DeserializeObject<AppConfig>(json);
             }
@@ -38,6 +42,7 @@ namespace Audio_Controller.Audio_Controller
         {
             try
             {
+                Directory.CreateDirectory(ConfigDirectory);
                 string json = JsonConvert.SerializeObject(config, Formatting.Indented);
                 File.WriteAllText(ConfigFilePath, json);
                 Console.WriteLine("Konfiguration erfolgreich gespeichert.");
@@ -45,6 +50,21 @@ namespace Audio_Controller.Audio_Controller
             catch (Exception ex)
             {
                 Console.WriteLine($"Fehler beim Speichern der Konfiguration: {ex.Message}");
+            }
+        }
+
+        public static void DeleteConfig()
+        {
+            try
+            {
+                if (File.Exists(ConfigFilePath))
+                {
+                    File.Delete(ConfigFilePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Fehler beim Löschen der Konfiguration: {ex.Message}");
             }
         }
 
