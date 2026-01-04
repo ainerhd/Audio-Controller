@@ -45,9 +45,13 @@ namespace Audio_Controller
                     }
                 }
 
-                var processor = new DataProcessor(channelCount);
-                var updater = new ConsoleUpdater(channelCount);
-                connection.DataReceived += raw =>
+            var processor = new DataProcessor(channelCount);
+            var updater = new ConsoleUpdater(channelCount);
+            using var connection = new SerialConnection(port);
+            connection.DataReceived += raw =>
+            {
+                var values = processor.Process(raw);
+                for (int i = 0; i < values.Length; i++)
                 {
                     var values = processor.Process(raw);
                     for (int i = 0; i < values.Length; i++)
@@ -60,10 +64,9 @@ namespace Audio_Controller
                     }
                 };
 
-                connection.Open();
-                Console.WriteLine("Press ENTER to quit");
-                Console.ReadLine();
-            }
+            connection.Open();
+            Console.WriteLine("Press ENTER to quit");
+            Console.ReadLine();
         }
     }
 }
