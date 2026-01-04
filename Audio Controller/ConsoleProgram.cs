@@ -32,16 +32,18 @@ namespace Audio_Controller
                 return;
             }
 
-            using var volumeController = new VolumeController();
-            var deviceMap = new Dictionary<int, MMDevice>();
-            for (int i = 0; i < channelCount && i + 2 < args.Length; i++)
+            using (var volumeController = new VolumeController())
+            using (var connection = new SerialConnection(port))
             {
-                var device = volumeController.GetDeviceByName(args[i + 2]);
-                if (device != null)
+                var deviceMap = new Dictionary<int, MMDevice>();
+                for (int i = 0; i < channelCount && i + 2 < args.Length; i++)
                 {
-                    deviceMap[i + 1] = device;
+                    var device = volumeController.GetDeviceByName(args[i + 2]);
+                    if (device != null)
+                    {
+                        deviceMap[i + 1] = device;
+                    }
                 }
-            }
 
             var processor = new DataProcessor(channelCount);
             var updater = new ConsoleUpdater(channelCount);
@@ -51,13 +53,16 @@ namespace Audio_Controller
                 var values = processor.Process(raw);
                 for (int i = 0; i < values.Length; i++)
                 {
-                    updater.UpdateChannel(i + 1, values[i]);
-                    if (deviceMap.TryGetValue(i + 1, out var dev))
+                    var values = processor.Process(raw);
+                    for (int i = 0; i < values.Length; i++)
                     {
-                        volumeController.SetVolume(dev, values[i]);
+                        updater.UpdateChannel(i + 1, values[i]);
+                        if (deviceMap.TryGetValue(i + 1, out var dev))
+                        {
+                            volumeController.SetVolume(dev, values[i]);
+                        }
                     }
-                }
-            };
+                };
 
             connection.Open();
             Console.WriteLine("Press ENTER to quit");
