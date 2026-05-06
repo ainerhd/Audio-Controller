@@ -1,0 +1,100 @@
+﻿<Window x:Class="MixerController.App.MainWindow"
+         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+         xmlns:vm="clr-namespace:MixerController.App.ViewModels"
+         mc:Ignorable="d"
+         Title="Mixer Controller"
+         MinHeight="620"
+         MinWidth="980"
+         Background="{StaticResource BgPrimary}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock FontSize="26" FontWeight="SemiBold" Text="Mixer Controller" />
+
+        <Grid Grid.Row="1" Margin="0,16,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="2*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Background="{StaticResource BgCard}" CornerRadius="10" Margin="6" Padding="12">
+                <StackPanel>
+                    <TextBlock Text="Kanäle" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <ItemsControl ItemsSource="{Binding Channels}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:ChannelStateViewModel}">
+                                <Grid Margin="0,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                    <ProgressBar Grid.Column="1" Height="14" Minimum="0" Maximum="100" Value="{Binding Value}" />
+                                    <TextBlock Grid.Column="2" Text="{Binding ValueText}" Margin="8,0,0,0" VerticalAlignment="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1" Background="{StaticResource BgCard}" CornerRadius="10" Margin="6" Padding="12">
+                <StackPanel>
+                    <TextBlock Text="Gerätezuordnung" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <ItemsControl ItemsSource="{Binding Channels}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:ChannelStateViewModel}">
+                                <Grid Margin="0,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                    <ComboBox Grid.Column="1"
+                                              ItemsSource="{Binding DataContext.Devices, RelativeSource={RelativeSource AncestorType=Window}}"
+                                              SelectedItem="{Binding SelectedDevice, Mode=TwoWay}"
+                                              DisplayMemberPath="DisplayName" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2" Background="{StaticResource BgCard}" CornerRadius="10" Margin="6" Padding="12">
+                <StackPanel>
+                    <TextBlock Text="Verbindung" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <TextBlock Text="Port" Foreground="{StaticResource TextMuted}" />
+                    <ComboBox ItemsSource="{Binding AvailablePorts}" SelectedItem="{Binding SelectedPort}" />
+
+                    <TextBlock Text="Kanäle" Foreground="{StaticResource TextMuted}" Margin="0,8,0,0" />
+                    <TextBox Text="{Binding ChannelCountText}" />
+
+                    <TextBlock Text="Puffergröße" Foreground="{StaticResource TextMuted}" Margin="0,8,0,0" />
+                    <TextBox Text="{Binding BufferSizeText}" />
+
+                    <TextBlock Text="DeadZone" Foreground="{StaticResource TextMuted}" Margin="0,8,0,0" />
+                    <TextBox Text="{Binding DeadZoneText}" />
+
+                    <TextBlock Text="{Binding StatusText}" Margin="0,16,0,0" Foreground="{StaticResource Accent}" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Ports aktualisieren" Command="{Binding RefreshPortsCommand}" />
+            <Button Content="Start" Command="{Binding StartCommand}" />
+            <Button Content="Stop" Command="{Binding StopCommand}" />
+            <Button Content="Speichern" Command="{Binding SaveCommand}" />
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,13 @@
+﻿using System.Windows;
+using MixerController.App.ViewModels;
+
+namespace MixerController.App;
+
+public partial class MainWindow : Window
+{
+    public MainWindow(MainViewModel viewModel)
+    {
+        InitializeComponent();
+        DataContext = viewModel;
+    }
+}
